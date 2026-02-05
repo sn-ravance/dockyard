@@ -1,226 +1,241 @@
-# Dockyard Setup Guide for macOS
+# Dockyard Setup Guide
 
-This guide will help you set up Dockyard, a Docker Desktop alternative UI, on your macOS system using Rancher Desktop.
+This guide will help you set up everything needed to run Dockyard, a web-based Docker management tool. No technical experience required - just follow the steps in order.
 
-## Prerequisites
+---
 
-### 1. Install Xcode Command Line Tools
+## What You'll Be Installing
+
+| Software | What It Does | Cost |
+|----------|--------------|------|
+| Xcode Command Line Tools | Basic development tools for macOS | Free |
+| Homebrew | A tool that makes installing software easy | Free |
+| Rancher Desktop | Runs Docker containers (replaces Docker Desktop) | Free |
+| Node.js | Runs JavaScript code | Free |
+
+**Total Cost: $0** - Everything is free and open source.
+
+---
+
+## Before You Start
+
+- Make sure you have at least **10 GB of free disk space**
+- You'll need an **internet connection** to download software
+- The setup process takes about **15-30 minutes**
+- You may be asked for your **Mac password** during installation
+
+---
+
+## Step-by-Step Setup
+
+### Step 1: Open Terminal
+
+1. Press `Command + Space` on your keyboard (opens Spotlight search)
+2. Type `Terminal`
+3. Press `Enter`
+
+A window with a command line will open. This is where you'll type commands.
+
+---
+
+### Step 2: Install Xcode Command Line Tools
+
+Copy and paste this command into Terminal, then press `Enter`:
 
 ```bash
 xcode-select --install
 ```
 
-### 2. Install Homebrew
+**What happens:**
+- A popup window will appear asking you to install
+- Click **"Install"**
+- Wait for it to complete (5-10 minutes)
 
-If you don't have Homebrew installed:
+**How to know it worked:**
+```bash
+xcode-select -p
+```
+You should see: `/Library/Developer/CommandLineTools`
+
+---
+
+### Step 3: Install Homebrew
+
+Copy and paste this entire command into Terminal, then press `Enter`:
 
 ```bash
 /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
 ```
 
-### 3. Install Rancher Desktop
+**What happens:**
+- You'll be asked to press `Enter` to continue
+- You may need to enter your Mac password (you won't see characters as you type - that's normal)
+- Wait for it to complete (5-10 minutes)
 
-Rancher Desktop provides Docker runtime capabilities without Docker Desktop.
+**Important for Apple Silicon Macs (M1/M2/M3):**
+
+After installation, run these two commands:
+
+```bash
+echo 'eval "$(/opt/homebrew/bin/brew shellenv)"' >> ~/.zprofile
+eval "$(/opt/homebrew/bin/brew shellenv)"
+```
+
+**How to know it worked:**
+```bash
+brew --version
+```
+You should see something like: `Homebrew 4.x.x`
+
+---
+
+### Step 4: Install Rancher Desktop
+
+Copy and paste this command into Terminal:
 
 ```bash
 brew install --cask rancher
 ```
 
-### 4. Configure Rancher Desktop
+**What happens:**
+- Homebrew will download and install Rancher Desktop
+- Wait for it to complete (2-5 minutes)
 
-1. **Launch Rancher Desktop** from your Applications folder
-2. **Initial Setup**:
-   - Choose **dockerd (moby)** as the container engine (not containerd)
-   - Disable Kubernetes if you don't need it (saves resources)
-3. **Wait for initialization** - the first launch downloads required components
-4. **Verify the Docker socket location**:
-   ```bash
-   ls -la ~/.rd/docker.sock
-   ```
+**Now configure Rancher Desktop:**
 
-### 5. Install Node.js 20
+1. Open **Finder**
+2. Go to **Applications**
+3. Double-click **Rancher Desktop**
+4. On the first screen:
+   - For **Container Engine**, select: **dockerd (moby)**
+   - For **Kubernetes**, toggle it **OFF** (you don't need it)
+   - Click **Accept** or **OK**
+5. Wait for Rancher Desktop to start (first time takes 5-10 minutes)
+6. You'll see a green checkmark or "Running" status when ready
+
+**How to know it worked:**
+```bash
+docker --version
+```
+You should see something like: `Docker version 24.x.x`
+
+```bash
+docker run hello-world
+```
+You should see: `Hello from Docker!`
+
+---
+
+### Step 5: Install Node.js
+
+Copy and paste this command into Terminal:
 
 ```bash
 brew install node@20
 ```
 
-Add to your shell profile (`~/.zshrc` or `~/.bashrc`):
+**What happens:**
+- Homebrew will download and install Node.js
+- Wait for it to complete (2-3 minutes)
+
+**How to know it worked:**
+```bash
+node --version
+```
+You should see something like: `v20.x.x`
+
+---
+
+## Setup Complete!
+
+You now have everything needed to run Dockyard.
+
+---
+
+## Running Dockyard
+
+### Option 1: Use the Scripts (Easiest)
+
+Navigate to the project folder and run the start script:
 
 ```bash
-export PATH="/opt/homebrew/opt/node@20/bin:$PATH"
+cd /Users/rob.vance@sleepnumber.com/Documents/GitHub/docker-ui
+./scripts/start.sh
 ```
 
-Reload your shell:
+### Option 2: Manual Commands
 
 ```bash
-source ~/.zshrc  # or source ~/.bashrc
+cd /Users/rob.vance@sleepnumber.com/Documents/GitHub/docker-ui
+docker compose up --build
 ```
 
-### 6. Verify Docker CLI Connectivity
+**When it's working:**
+- Open your web browser
+- Go to: **http://localhost:3030**
+- You should see the Dockyard dashboard
 
-```bash
-# Test Docker connection
-docker info
+---
 
-# If using Rancher Desktop socket explicitly
-DOCKER_HOST=unix://$HOME/.rd/docker.sock docker info
-```
+## Controlling Dockyard
 
-## Installation
+| What You Want | Command |
+|---------------|---------|
+| Start Dockyard | `./scripts/start.sh` |
+| Stop Dockyard | `./scripts/stop.sh` |
+| Restart Dockyard | `./scripts/restart.sh` |
 
-### Option 1: Using Docker Compose (Recommended)
-
-1. **Clone the repository**:
-   ```bash
-   cd /Users/rob.vance@sleepnumber.com/Documents/GitHub/docker-ui
-   ```
-
-2. **Configure environment**:
-   ```bash
-   # Copy environment template
-   cp .env.example .env
-
-   # Edit for Rancher Desktop socket (if needed)
-   # Change DOCKER_SOCKET to: ~/.rd/docker.sock
-   ```
-
-3. **Build and run**:
-   ```bash
-   # For production
-   docker compose up --build -d
-
-   # For development (with hot reload)
-   docker compose -f docker-compose.dev.yml up --build
-   ```
-
-4. **Access the UI**: Open http://localhost:3000
-
-### Option 2: Running Locally (Development)
-
-1. **Install backend dependencies**:
-   ```bash
-   cd backend
-   npm install
-   ```
-
-2. **Install frontend dependencies**:
-   ```bash
-   cd ../frontend
-   npm install
-   ```
-
-3. **Start the backend**:
-   ```bash
-   cd ../backend
-
-   # For Rancher Desktop
-   DOCKER_SOCKET=$HOME/.rd/docker.sock npm run dev
-
-   # For standard Docker
-   npm run dev
-   ```
-
-4. **Start the frontend** (in a new terminal):
-   ```bash
-   cd frontend
-   npm run dev
-   ```
-
-5. **Access the UI**: Open http://localhost:3000 (or http://localhost:5173 if using Vite dev server)
-
-## Rancher Desktop Configuration
-
-### Docker Socket Location
-
-Rancher Desktop uses a different socket path than Docker Desktop:
-
-| Runtime | Socket Path |
-|---------|-------------|
-| Docker Desktop | `/var/run/docker.sock` |
-| Rancher Desktop | `~/.rd/docker.sock` |
-
-### Setting Up Symlink (Optional)
-
-If you want to use the standard socket path:
-
-```bash
-sudo ln -s $HOME/.rd/docker.sock /var/run/docker.sock
-```
-
-**Note**: This symlink may need to be recreated after system restarts.
-
-### Environment Variable
-
-Alternatively, set the `DOCKER_HOST` environment variable:
-
-```bash
-export DOCKER_HOST=unix://$HOME/.rd/docker.sock
-```
-
-Add this to your `~/.zshrc` or `~/.bashrc` for persistence.
+---
 
 ## Troubleshooting
 
+### "command not found: docker"
+
+Rancher Desktop isn't running. Open it from Applications.
+
 ### "Cannot connect to Docker daemon"
 
-1. Ensure Rancher Desktop is running
-2. Check the socket exists: `ls -la ~/.rd/docker.sock`
-3. Verify Docker connectivity: `docker info`
-4. Check the `DOCKER_SOCKET` environment variable in your `.env` file
+1. Make sure Rancher Desktop is running (check for icon in menu bar)
+2. Wait a minute for it to fully start
+3. Try again
 
-### "Permission denied" on Docker socket
+### "port is already allocated"
+
+Something else is using port 3030. Either:
+- Close the other application using that port
+- Or edit `docker-compose.yml` and change `3030` to another number like `3031`
+
+### The page won't load in the browser
+
+1. Make sure Terminal shows "Dockyard API server running"
+2. Try refreshing the page
+3. Make sure you're going to `http://localhost:3030` (not https)
+
+---
+
+## Getting Help
+
+If you're stuck:
+1. Take a screenshot of any error messages
+2. Note which step you're on
+3. Ask for help with the screenshot and step number
+
+---
+
+## Uninstalling (If Needed)
+
+To remove everything:
 
 ```bash
-# Check socket permissions
-ls -la ~/.rd/docker.sock
+# Stop Dockyard
+./scripts/stop.sh
 
-# The socket should be owned by your user
-# If running via Docker Compose, ensure the volume mount is correct
+# Remove Rancher Desktop
+brew uninstall --cask rancher
+
+# Remove Node.js
+brew uninstall node@20
+
+# Remove Homebrew (optional)
+/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/uninstall.sh)"
 ```
-
-### Frontend can't connect to backend
-
-1. Check if backend is running: `curl http://localhost:3001/api/health`
-2. Verify CORS settings in `.env` include your frontend URL
-3. Check browser console for CORS errors
-
-### WebSocket connections fail
-
-1. Ensure the backend WebSocket server is running on port 3001
-2. Check that no firewall is blocking WebSocket connections
-3. Verify the proxy configuration in `vite.config.ts` (for dev mode)
-
-## Verification
-
-After setup, verify everything works:
-
-1. **Check backend health**:
-   ```bash
-   curl http://localhost:3001/api/health
-   # Expected: {"status":"healthy","docker":"connected",...}
-   ```
-
-2. **List containers via API**:
-   ```bash
-   curl http://localhost:3001/api/containers
-   ```
-
-3. **Access the UI**: Open http://localhost:3000
-   - Dashboard should show system info
-   - Containers page should list your containers
-   - Images page should list your images
-
-## Quick Reference
-
-| Command | Description |
-|---------|-------------|
-| `docker compose up --build` | Build and start production |
-| `docker compose down` | Stop all services |
-| `docker compose logs -f` | View logs |
-| `npm run dev` | Start development server |
-
-## Resources
-
-- [Rancher Desktop Documentation](https://docs.rancherdesktop.io/)
-- [Docker CLI Reference](https://docs.docker.com/reference/cli/docker/)
-- [Dockyard Repository](https://github.com/yourusername/docker-ui)

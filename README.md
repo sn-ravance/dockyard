@@ -1,6 +1,50 @@
-# Dockyard - Docker Desktop Alternative
+# Dockyard - Free Docker Desktop Alternative
 
-A modern, web-based Docker management UI built with React and Node.js. Designed to work with Rancher Desktop on macOS as a lightweight alternative to Docker Desktop.
+A modern, web-based Docker management UI that replaces Docker Desktop's interface. Combined with Rancher Desktop, you get a complete, **free** Docker Desktop alternative.
+
+## Why Dockyard?
+
+**Docker Desktop requires a paid license** for commercial use (companies with 250+ employees or $10M+ revenue).
+
+**Dockyard + Rancher Desktop = 100% Free Alternative**
+
+| Component | What It Replaces | Cost |
+|-----------|------------------|------|
+| Rancher Desktop | Docker Desktop's **engine** (the VM that runs containers) | Free |
+| Dockyard | Docker Desktop's **UI** (the management interface) | Free |
+
+## Rancher Desktop vs Dockyard
+
+| Feature | Rancher Desktop GUI | Dockyard |
+|---------|---------------------|----------|
+| **Purpose** | Configure Docker runtime | Manage containers/images |
+| **List Containers** | Basic | Detailed with status |
+| **Start/Stop Containers** | Limited | One-click actions |
+| **View Logs** | No | Real-time streaming |
+| **View Stats** | No | CPU/memory/network charts |
+| **Pull Images** | No | Yes, with progress bar |
+| **Create Volumes** | No | Yes |
+| **Create Networks** | No | Yes |
+| **Terminal (exec)** | No | Yes |
+| **Search/Filter** | No | Yes |
+
+## Do You Need Dockyard?
+
+**If you prefer the command line**, you don't need Dockyard:
+```bash
+docker ps                        # List containers
+docker logs <container>          # View logs
+docker stats                     # View stats
+docker exec -it <container> sh   # Terminal access
+```
+
+**If you want a visual interface** like Docker Desktop provides, Dockyard gives you:
+- Dashboard overview of your Docker environment
+- One-click container management (start, stop, restart, remove)
+- Real-time log streaming with search
+- Live resource monitoring (CPU, memory, network, I/O)
+- Image management with pull progress
+- Volume and network CRUD operations
 
 ## Features
 
@@ -11,8 +55,12 @@ A modern, web-based Docker management UI built with React and Node.js. Designed 
 - **Volume Management**: Create, list, and remove volumes
 - **Network Management**: Create, list, remove networks; connect/disconnect containers
 - **Dashboard**: Overview of your Docker environment with system information
-- **Dark Mode**: Beautiful dark theme optimized for long coding sessions
+- **Dark Mode**: Beautiful dark theme optimized for long sessions
 - **Search**: Filter containers, images, volumes, and networks
+
+## Screenshots
+
+*Coming soon*
 
 ## Tech Stack
 
@@ -30,43 +78,46 @@ A modern, web-based Docker management UI built with React and Node.js. Designed 
 
 ### Prerequisites
 
-- macOS with Rancher Desktop (or Docker Desktop)
-- Node.js 20+
-- Docker CLI
+- macOS or Windows
+- Rancher Desktop (or any Docker-compatible runtime)
 
-### Using Docker Compose
+### Installation
 
+**macOS:**
 ```bash
-# Clone and navigate to the project
-cd /Users/rob.vance@sleepnumber.com/Documents/GitHub/docker-ui
+# One-time setup (installs Rancher Desktop, Node.js, etc.)
+./scripts/setup.sh
 
-# Copy environment configuration
-cp .env.example .env
-
-# For Rancher Desktop, edit .env and set:
-# DOCKER_SOCKET=~/.rd/docker.sock
-
-# Build and start
-docker compose up --build
-
-# Access at http://localhost:3000
+# Start Dockyard
+./scripts/start.sh
 ```
 
-### Local Development
+**Windows (PowerShell):**
+```powershell
+# One-time setup
+.\scripts\setup.ps1
 
-```bash
-# Backend
-cd backend
-npm install
-DOCKER_SOCKET=$HOME/.rd/docker.sock npm run dev
-
-# Frontend (new terminal)
-cd frontend
-npm install
-npm run dev
-
-# Access at http://localhost:5173
+# Start Dockyard
+.\scripts\start.ps1
 ```
+
+**Then open:** http://localhost:3030
+
+### Control Scripts
+
+| Action | macOS | Windows |
+|--------|-------|---------|
+| Start | `./scripts/start.sh` | `.\scripts\start.ps1` |
+| Stop | `./scripts/stop.sh` | `.\scripts\stop.ps1` |
+| Restart | `./scripts/restart.sh` | `.\scripts\restart.ps1` |
+
+## Documentation
+
+| Document | Description |
+|----------|-------------|
+| [SETUP_GUIDE.md](SETUP_GUIDE.md) | macOS setup guide (beginner-friendly) |
+| [SETUP_GUIDE_WINDOWS.md](SETUP_GUIDE_WINDOWS.md) | Windows setup guide (beginner-friendly) |
+| [rancher_setup.md](rancher_setup.md) | Rancher Desktop specific setup |
 
 ## Project Structure
 
@@ -75,34 +126,27 @@ docker-ui/
 ├── docker-compose.yml        # Production orchestration
 ├── docker-compose.dev.yml    # Development with hot reload
 ├── .env.example              # Environment template
-├── SETUP_GUIDE.md            # Detailed setup instructions
-├── README.md
 │
 ├── backend/
-│   ├── src/
-│   │   ├── index.ts          # Express app entry
-│   │   ├── config.ts         # Environment config
-│   │   ├── routes/           # API routes
-│   │   ├── services/         # Business logic
-│   │   ├── websocket/        # WebSocket handlers
-│   │   ├── middleware/       # Express middleware
-│   │   └── types/            # TypeScript types
-│   ├── Dockerfile
-│   └── package.json
+│   └── src/
+│       ├── routes/           # API endpoints
+│       ├── services/         # Docker operations
+│       ├── websocket/        # Real-time handlers
+│       └── middleware/       # Express middleware
 │
 ├── frontend/
-│   ├── src/
-│   │   ├── components/       # React components
-│   │   ├── pages/            # Page components
-│   │   ├── hooks/            # Custom React hooks
-│   │   ├── stores/           # Zustand stores
-│   │   ├── api/              # API client
-│   │   └── types/            # TypeScript types
-│   ├── Dockerfile
-│   └── package.json
+│   └── src/
+│       ├── components/       # React components
+│       ├── pages/            # Page components
+│       ├── hooks/            # Custom React hooks
+│       ├── stores/           # Zustand stores
+│       └── api/              # API client
 │
 └── scripts/
-    └── setup-macos.sh        # Automated setup script
+    ├── setup.sh / setup.ps1       # Full setup
+    ├── start.sh / start.ps1       # Start app
+    ├── stop.sh / stop.ps1         # Stop app
+    └── restart.sh / restart.ps1   # Restart app
 ```
 
 ## API Endpoints
@@ -148,12 +192,14 @@ Environment variables (`.env`):
 ```env
 # Docker socket path
 # Default: /var/run/docker.sock
-# Rancher Desktop: ~/.rd/docker.sock
+# Rancher Desktop macOS: ~/.rd/docker.sock
 DOCKER_SOCKET=/var/run/docker.sock
 
-# Backend
+# Backend port
 PORT=3001
-CORS_ORIGINS=http://localhost:3000
+
+# CORS origins
+CORS_ORIGINS=http://localhost:3030
 ```
 
 ## Security Considerations
@@ -164,6 +210,31 @@ CORS_ORIGINS=http://localhost:3000
 - Rate limiting on resource-intensive operations
 - No credential storage
 
+## Troubleshooting
+
+### "Cannot connect to Docker daemon"
+1. Make sure Rancher Desktop is running
+2. Check for the green status indicator
+3. Try restarting Rancher Desktop
+
+### "Port already allocated"
+Change the port in `docker-compose.yml` from `3030` to another port.
+
+### Container list not loading
+```bash
+# Check if Docker is responding
+curl http://localhost:3001/api/health
+
+# Check backend logs
+docker compose logs backend
+```
+
 ## License
 
 MIT
+
+## Acknowledgments
+
+- [Dockerode](https://github.com/apocas/dockerode) - Docker API client for Node.js
+- [Rancher Desktop](https://rancherdesktop.io/) - Free Docker Desktop alternative runtime
+- [xterm.js](https://xtermjs.org/) - Terminal emulator for the web
